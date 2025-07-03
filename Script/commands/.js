@@ -2,68 +2,65 @@ const axios = require("axios");
 const fs = require("fs");
 const request = require("request");
 
-const link = [
- "https://i.imgur.com/bbigbCj.mp4",
+const videoLinks = [
+  "https://i.imgur.com/bbigbCj.mp4" // Dil song video
+];
 
+// তোমার দেওয়া ছবির লিংক (আমি imgur এ আপলোড করে নিচ্ছি)
+const imageLinks = [
+  "https://i.imgur.com/7K7FvLa.jpg" // এখানে তোমার ছবি আছে ✅
 ];
 
 module.exports.config = {
- name: "🥺",
- version: "1.0.0",
- hasPermssion: 0,
- credits: "Islamick Chat",
- description: "auto reply to salam",
- commandCategory: "noprefix",
- usages: "🥺",
- cooldowns: 5,
- dependencies: {
- "request":"",
- "fs-extra":"",
- "axios":""
- }
+  name: "AdminBot",
+  version: "1.0.0",
+  hasPermssion: 0,
+  credits: "Md Tamim", // Owner name
+  description: "Admin bot likhle gan o photo dey",
+  commandCategory: "noprefix",
+  usages: "Admin bot",
+  cooldowns: 5,
+  dependencies: {
+    "request": "",
+    "fs-extra": "",
+    "axios": ""
+  }
 };
 
-module.exports.handleEvent = async ({ api, event, Threads }) => {
- const content = event.body ? event.body : '';
- const body = content.toLowerCase();
- if (body.startsWith("🥺")) {
- const rahad = [
- "╭•┄┅════❁🌺❁════┅┄•╮\n \n আমি বলবো কেমন করে আমার শরিলের লোম দারিয়ে যায়-!!🥺\n\n╰•┄┅════❁🌺❁════┅┄•╯",
- "╭•┄┅════❁🌺❁════┅┄•╮\n\nআমি বলবো কেমন করে আমার শরিলের লোম দারিয়ে যায়-!!🥺\n\n╰•┄┅════❁🌺❁════┅┄•╯"
+module.exports.handleEvent = async ({ api, event }) => {
+  const content = event.body ? event.body.toLowerCase() : '';
+  if (content.includes("admin bot")) {
 
- ];
- const rahad2 = rahad[Math.floor(Math.random() * rahad.length)];
+    const videoURL = videoLinks[Math.floor(Math.random() * videoLinks.length)];
+    const imageURL = imageLinks[Math.floor(Math.random() * imageLinks.length)];
 
- const callback = () => api.sendMessage({
- body: `${rahad2}`,
- attachment: fs.createReadStream(__dirname + "/cache/2024.mp4")
- }, event.threadID, () => fs.unlinkSync(__dirname + "/cache/2024.mp4"), event.messageID);
+    const videoPath = __dirname + "/cache/adminbot_video.mp4";
+    const imagePath = __dirname + "/cache/adminbot_img.jpg";
 
- const requestStream = request(encodeURI(link[Math.floor(Math.random() * link.length)]));
- requestStream.pipe(fs.createWriteStream(__dirname + "/cache/2024.mp4")).on("close", () => callback());
- return requestStream;
- }
+    const downloadVideo = () => new Promise((resolve) => {
+      request(encodeURI(videoURL)).pipe(fs.createWriteStream(videoPath)).on("close", resolve);
+    });
+
+    const downloadImage = () => new Promise((resolve) => {
+      request(encodeURI(imageURL)).pipe(fs.createWriteStream(imagePath)).on("close", resolve);
+    });
+
+    await downloadVideo();
+    await downloadImage();
+
+    const message = {
+      body: "🎶 𝐀𝐝𝐦𝐢𝐧 𝐁𝐨𝐭 𝐀𝐜𝐭𝐢𝐯𝐚𝐭𝐞𝐝 𝐛𝐲 💖 𝙈𝙙 𝙏𝙖𝙢𝙞𝙢 💖\n\n🎵 Here's a Dil song & a special photo just for you! 🥰",
+      attachment: [
+        fs.createReadStream(videoPath),
+        fs.createReadStream(imagePath)
+      ]
+    };
+
+    api.sendMessage(message, event.threadID, () => {
+      fs.unlinkSync(videoPath);
+      fs.unlinkSync(imagePath);
+    }, event.messageID);
+  }
 };
 
-module.exports.languages = {
- "vi": {
- "on": "Dùng sai cách rồi lêu lêu",
- "off": "sv ngu, đã bão dùng sai cách",
- "successText": `🧠`,
- },
- "en": {
- "on": "on",
- "off": "off",
- "successText": "success!",
- }
-};
-
-module.exports.run = async ({ api, event, Threads, getText }) => {
- const { threadID, messageID } = event;
- let data = (await Threads.getData(threadID)).data;
- if (typeof data["🥺"] === "undefined" || data["🥺"]) data["🥺"] = false;
- else data["🥺"] = true;
- await Threads.setData(threadID, { data });
- global.data.threadData.set(threadID, data);
- api.sendMessage(`${(data["🥺"]) ? getText("off") : getText("on")} ${getText("successText")}`, threadID, messageID);
-};
+module.exports.run = () => {};
