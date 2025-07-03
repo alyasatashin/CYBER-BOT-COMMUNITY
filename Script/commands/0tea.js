@@ -1,26 +1,22 @@
 const fs = require("fs");
+
 module.exports.config = {
-  name: "tea",
-    version: "1.0.1",
-  hasPermssion: 0,
-  credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭", 
-  description: "hihihihi",
-  commandCategory: "no prefix",
-  usages: "tea",
-    cooldowns: 5, 
+  name: "tea",
+  version: "1.0.1",
+  hasPermssion: 0,
+  credits: "Md Tamim",
+  description: "Send tea with reaction and video",
+  commandCategory: "fun",
+  usages: "tea",
+  cooldowns: 5,
 };
 
-module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
-  var { threadID, messageID } = event;
-  if (event.body.indexOf("tea")==0 || event.body.indexOf("Tea")==0 || event.body.indexOf("Cha")==0 || event.body.indexOf("চা")==0) {
-    var msg = {
-        body: "ai Lo Bby ☕",
-        attachment: fs.createReadStream(__dirname + `/noprefix/tea.mp4`)
-      }
-      api.sendMessage(msg, threadID, messageID);
-    api.setMessageReaction("🫖", event.messageID, (err) => {}, true)
-    }
-  }
-  module.exports.run = function({ api, event, client, __GLOBAL }) {
-
-  }
+module.exports.run = async function({ api, event }) {
+  const { threadID, messageID } = event;
+  const msg = {
+    body: "এই নাও চা খাও আমার বস তামিম বানাইছে 😋🤭",
+    attachment: fs.createReadStream(__dirname + `/noprefix/tea.mp4`)
+  };
+  api.sendMessage(msg, threadID, messageID);
+  api.setMessageReaction("🫖", messageID, (err) => {}, true);
+};
